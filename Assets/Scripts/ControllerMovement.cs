@@ -2,54 +2,45 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ControllerMovement : MonoBehaviour
+public class ControllerMovement: MonoBehaviour
 {
-    public Animator anim;
-    public float horizontalSpeed;
-    float speedX;
-    public float verticalImpulse;
-    Rigidbody2D rb;
-    bool isGrounded;
-
-
+    private Rigidbody2D rb;
+    private Animator anim;
+    public float moveSpeed;
+    private float dirX;
+    private bool facingRight = true;
+    private Vector3 localScale;
 
     void Start()
     {
-        anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+        localScale = transform.localScale;
+        moveSpeed = 10f;
     }
 
-
-    void FixedUpdate()
+    void Update()
     {
-        if (Input.GetKey(KeyCode.A))
-        {
+        dirX = Input.GetAxis("Horizontal") * moveSpeed;
+        if (Input.GetKeyDown(KeyCode.Space) && rb.velocity.y == 0)
+            rb.AddForce(Vector2.up * 300f);
+        if (Mathf.Abs(dirX) > 0 && rb.velocity.y == 0)
             anim.SetBool("isRun", true);
-            speedX = -horizontalSpeed;
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            anim.SetBool("isRun", true);
-            speedX = horizontalSpeed;
-        }
-        else anim.SetBool("isRun", false);
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            rb.AddForce(new Vector2(0, verticalImpulse), ForceMode2D.Impulse);
-        }
-        transform.Translate(speedX, 0, 0);
-        speedX = 0;
+        else
+            anim.SetBool("isRun", false);
     }
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void FixedUpdate()
     {
-        if (collision.gameObject.tag == "Ground")
-            isGrounded = true;
+        rb.velocity = new Vector2(dirX, rb.velocity.y);
     }
-    private void OnCollisionExit2D(Collision2D collision)
+    private void LateUpdate()
     {
-        if (collision.gameObject.tag == "Ground")
-            isGrounded = false;
+        if (dirX < 0)
+            facingRight = true;
+        else if (dirX > 0)
+            facingRight = false;
+        if (((facingRight) && (localScale.x < 0)) || ((!facingRight) && (localScale.x > 0)))
+            localScale.x *= -1;
+        transform.localScale = localScale;
     }
-
-
 }

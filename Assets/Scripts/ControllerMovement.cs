@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ControllerMovement : MonoBehaviour
 {
+    public Animator anim;
     public float horizontalSpeed;
     float speedX;
     public float verticalImpulse;
@@ -14,6 +15,7 @@ public class ControllerMovement : MonoBehaviour
 
     void Start()
     {
+        anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -22,12 +24,15 @@ public class ControllerMovement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.A))
         {
+            anim.SetBool("isRun", true);
             speedX = -horizontalSpeed;
         }
         else if (Input.GetKey(KeyCode.D))
         {
+            anim.SetBool("isRun", true);
             speedX = horizontalSpeed;
         }
+        else anim.SetBool("isRun", false);
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.AddForce(new Vector2(0, verticalImpulse), ForceMode2D.Impulse);
